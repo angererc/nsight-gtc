@@ -36,6 +36,8 @@
 // STEP 0x70: Process two elements per thread (improve memory efficiency, increase ILP)
 // STEP 0x80: Improve shared memory accesses (reduce bank conflicts)
 // STEP 0x90: Use floats rather than ints (reduce pressure on arithmetic pipe)
+// STEP 0x91: Use floats and math intrinsics in sobel_filter (compile with --use_fast_math)
+// STEP
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -148,6 +150,18 @@ static __constant__ int sobel_filter_y[3][3] = {
    1,  2,  1,
    0,  0,  0,
   -1, -2, -1,
+};
+
+static __constant__ float sobel_filter_v1_x[3][3] = {
+  -1.0f, 0.0f, 1.0f,
+  -2.0f, 0.0f, 2.0f,
+  -1.0f, 0.0f, 1.0f,
+};
+
+static __constant__ float sobel_filter_v1_y[3][3] = {
+   1.0f,  2.0f,  1.0f,
+   0.0f,  0.0f,  0.0f,
+  -1.0f, -2.0f, -1.0f,
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -683,12 +697,12 @@ __global__ void sobel_filter_3x3_v1(int w, int h, const uchar *src, uchar *dst)
   for( int j = 0 ; j < 3 ; ++j )
     for( int i = 0 ; i < 3 ; ++i )
     {
-      gx += __fmul_rd(sobel_filter_x[j][i], n[j][i]);
-      gy += __fmul_rd(sobel_filter_y[j][i], n[j][i]);
+      gx = __fmaf_rd(sobel_filter_v1_x[j][i], n[j][i], gx);
+      gy = __fmaf_rd(sobel_filter_v1_y[j][i], n[j][i], gy);
     }
 
   // The gradient.
-  float grad = __fsqrt_rd(__fadd_rd(__fmul_rd(gx,gx), __fmul_rd(gy,gy)));
+  float grad = sqrtf((gx*gx + gy*gy));
 
   // Store the result.
   dst[y*w + x] = (uchar) (grad >= 255.0f ? 255 : grad);
@@ -750,7 +764,7 @@ static void cuda_gaussian_filter(uchar *dst)
   #elif OPTIMIZATION_STEP == 0x90
     #define OPTIMIZATION_DESC "Using floats instead of ints (reducing arithmetic pipe pressure)"
   #elif OPTIMIZATION_STEP == 0x91
-    #define OPTIMIZATION_DESC "Fastest Gaussian plus optimized rgp_grayscale and sobel filters"
+    #define OPTIMIZATION_DESC "Use floats and math intrinsics in sobel_filter (compile with --use_fast_math)"
   #else
     #define OPTIMIZATION_DESC "n/a"
   #endif
@@ -866,14 +880,14 @@ static void cuda_gaussian_filter(uchar *dst)
     return;
   }
 
+  dim3 block_dim_sobel(32, 8);
   CHECK_CUDA(cudaEventRecord(sobelStart));
 #if OPTIMIZATION_STEP == 0x91
-  dim3 block_dim_sobel(32, 4);
   dim3 grid_dim_sobel(round_up(g_data.img_w, block_dim_sobel.x), round_up(g_data.img_h, block_dim_sobel.y));
   sobel_filter_3x3_v1<<<grid_dim_sobel, block_dim_sobel>>>(g_data.img_w, g_data.img_h, smoothed_grayscale, dst);
 #else
-  dim3 grid_dim_sobel(round_up(g_data.img_w, block_dim.x), round_up(g_data.img_h, block_dim.y));
-  sobel_filter_3x3_v0<<<grid_dim, block_dim>>>(g_data.img_w, g_data.img_h, smoothed_grayscale, dst);
+  dim3 grid_dim_sobel(round_up(g_data.img_w, block_dim_sobel.x), round_up(g_data.img_h, block_dim_sobel.y));
+  sobel_filter_3x3_v0<<<grid_dim_sobel, block_dim_sobel>>>(g_data.img_w, g_data.img_h, smoothed_grayscale, dst);
 #endif
   CHECK_CUDA(cudaGetLastError());
   CHECK_CUDA(cudaEventRecord(sobelEnd));

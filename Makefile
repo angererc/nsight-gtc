@@ -20,7 +20,7 @@ NVCC = $(CUDA_PATH)/bin/nvcc
 
 # The flags
 
-NVCC_FLAGS = -O3 -lineinfo -gencode arch=compute_35,code=sm_35 -gencode arch=compute_37,code=sm_37 -DDO_WARMUP 
+NVCC_FLAGS = -O3 -lineinfo -gencode arch=compute_35,code=sm_35 -gencode arch=compute_37,code=sm_37 
 
 ###################################################################################################
 #
@@ -87,7 +87,7 @@ step-90: nsight-gtc2015.cu
 	$(NVCC) $(NVCC_FLAGS) -DOPTIMIZATION_STEP=0x90 -o nsight-gtc2015-step-90 $<
 
 step-91: nsight-gtc2015.cu                                         
-	$(NVCC) $(NVCC_FLAGS) -DOPTIMIZATION_STEP=0x91 -o nsight-gtc2015-step-91 $<
+	$(NVCC) $(NVCC_FLAGS) --use_fast_math -DOPTIMIZATION_STEP=0x91 -o nsight-gtc2015-step-91 $<
 
 clean:
 	rm -f nsight-gtc2015-step-00
