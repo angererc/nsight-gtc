@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nsight-gtc2015-vs2013", "nsight-gtc2015-vs2013.vcxproj", "{A6E7B948-6169-4941-841A-52CF8291F470}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Step-00|x64 = Step-00|x64
+		Step-1a|x64 = Step-1a|x64
+		Step-1b|x64 = Step-1b|x64
+		Step-20|x64 = Step-20|x64
+		Step-30|x64 = Step-30|x64
+		Step-40|x64 = Step-40|x64
+		Step-50|x64 = Step-50|x64
+		Step-60|x64 = Step-60|x64
+		Step-70|x64 = Step-70|x64
+		Step-80|x64 = Step-80|x64
+		Step-90|x64 = Step-90|x64
+		Step-91|x64 = Step-91|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A6E7B948-6169-4941-841A-52CF8291F470}.Step-00|x64.ActiveCfg = Step-00|x64
+		{A6E7B948-6169-4941-841A-52CF8291F470}.Step-00|x64.Build.0 = Step-00|x64
+		{A6E7B948-6169-4941-841A-52CF8291F470}.Step-1a|x64.ActiveCfg = Step-1a|x64
+		{A6E7B948-6169-4941-841A-52CF8291F470}.Step-1a|x64.Build.0 = Step-1a|x64
+		{A6E7B948-6169-4941-841A-52CF8291F470}.Step-1b|x64.ActiveCfg = Step-1b|x64
+		{A6E7B948-6169-4941-841A-52CF8291F470}.Step-1b|x64.Build.0 = Step-1b|x64
+		{A6E7B948-6169-4941-841A-52CF8291F470}.Step-20|x64.ActiveCfg = Step-20|x64
+		{A6E7B948-6169-4941-841A-52CF8291F470}.Step-20|x64.Build.0 = Step-20|x64
+		{A6E7B948-6169-4941-841A-52CF8291F470}.Step-30|x64.ActiveCfg = Step-30|x64
+		{A6E7B948-6169-4941-841A-52CF8291F470}.Step-30|x64.Build.0 = Step-30|x64
+		{A6E7B948-6169-4941-841A-52CF8291F470}.Step-40|x64.ActiveCfg = Step-40|x64
+		{A6E7B948-6169-4941-841A-52CF8291F470}.Step-40|x64.Build.0 = Step-40|x64
+		{A6E7B948-6169-4941-841A-52CF8291F470}.Step-50|x64.ActiveCfg = Step-50|x64
+		{A6E7B948-6169-4941-841A-52CF8291F470}.Step-50|x64.Build.0 = Step-50|x64
+		{A6E7B948-6169-4941-841A-52CF8291F470}.Step-60|x64.ActiveCfg = Step-60|x64
+		{A6E7B948-6169-4941-841A-52CF8291F470}.Step-60|x64.Build.0 = Step-60|x64
+		{A6E7B948-6169-4941-841A-52CF8291F470}.Step-70|x64.ActiveCfg = Step-70|x64
+		{A6E7B948-6169-4941-841A-52CF8291F470}.Step-70|x64.Build.0 = Step-70|x64
+		{A6E7B948-6169-4941-841A-52CF8291F470}.Step-80|x64.ActiveCfg = Step-80|x64
+		{A6E7B948-6169-4941-841A-52CF8291F470}.Step-80|x64.Build.0 = Step-80|x64
+		{A6E7B948-6169-4941-841A-52CF8291F470}.Step-90|x64.ActiveCfg = Step-90|x64
+		{A6E7B948-6169-4941-841A-52CF8291F470}.Step-90|x64.Build.0 = Step-90|x64
+		{A6E7B948-6169-4941-841A-52CF8291F470}.Step-91|x64.ActiveCfg = Step-91|x64
+		{A6E7B948-6169-4941-841A-52CF8291F470}.Step-91|x64.Build.0 = Step-91|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
