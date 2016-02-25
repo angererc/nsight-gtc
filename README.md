@@ -1,7 +1,7 @@
-nsight-gtc2015
+nsight-gtc
 ==============
 
-Companion code for GTC 2015 Nsight VSE/EE tutorials
+Companion code for GTC 2016 Nsight VSE/EE tutorials
 
 Build on Windows
 ----------------
