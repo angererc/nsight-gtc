@@ -2,6 +2,8 @@
 #include <cstdlib>
 #include <cstring>
 
+#define WITH_UVM
+
 #ifdef WITH_OPENGL
 #include <GL/glew.h>
 #if defined(__APPLE__) || defined(MACOSX)
@@ -830,6 +832,7 @@ static void cuda_gaussian_filter(uchar *dst)
 
 #if   OPTIMIZATION_STEP == 0x00
     gaussian_filter_7x7_v0<<<grid_dim, block_dim>>>(g_data.img_w, g_data.img_h, grayscale, smoothed_grayscale);
+	gaussian_filter_7x7_v0<<<grid_dim, block_dim>>>(g_data.img_w, g_data.img_h, grayscale, smoothed_grayscale);
 #elif OPTIMIZATION_STEP == 0x1a
     gaussian_filter_7x7_v0<<<grid_dim, block_dim>>>(g_data.img_w, g_data.img_h, grayscale, smoothed_grayscale);
 #elif OPTIMIZATION_STEP == 0x1b
@@ -1054,7 +1057,7 @@ void load_image(const char *filename)
 
   // Read the pixels.
   int size_in_bytes = 3*width*height*sizeof(uchar);
-  uchar *img_rgb = (uchar*) malloc(size_in_bytes);
+  uchar *img_rgb = (uchar*) malloc(size_in_bytes);  
   CHECK(img_rgb);
   CHECK(fread(img_rgb, sizeof(uchar), 3*width*height, fp) == 3*width*height);
 
@@ -1063,7 +1066,12 @@ void load_image(const char *filename)
 
   // Create the RGBA image on the host.
   size_in_bytes = width*height*sizeof(uchar4);
-  uchar4 *img_rgba = (uchar4*) malloc(size_in_bytes);
+#ifdef WITH_UVM
+  uchar4 *img_rgba;
+  CHECK_CUDA(cudaMallocManaged((void**)&img_rgba, size_in_bytes));
+#else
+  uchar4 *img_rgba = (uchar4*)malloc(size_in_bytes);
+#endif
   CHECK(img_rgba);
   for( int i = 0 ; i < width*height ; ++i )
     img_rgba[i] = make_uchar4(img_rgb[3*i+0], img_rgb[3*i+1], img_rgb[3*i+2], 0);
@@ -1072,7 +1080,13 @@ void load_image(const char *filename)
   // Setup the global data.
   g_data.img_w = width;
   g_data.img_h = height;
-  
+
+#ifdef WITH_UVM
+  g_data.img_rgba = img_rgba;
+  size_in_bytes = width*height*sizeof(uchar);
+  CHECK_CUDA(cudaMallocManaged((void**)&g_data.img_grayscale, size_in_bytes));
+  CHECK_CUDA(cudaMallocManaged((void**)&g_data.img_smoothed_grayscale, size_in_bytes));
+#else
   // Allocate CUDA memory.
   CHECK_CUDA(cudaMalloc((void**) &g_data.img_rgba, size_in_bytes));
   CHECK_CUDA(cudaMemcpy(g_data.img_rgba, img_rgba, size_in_bytes, cudaMemcpyHostToDevice));
@@ -1082,6 +1096,7 @@ void load_image(const char *filename)
   size_in_bytes = width*height*sizeof(uchar);
   CHECK_CUDA(cudaMalloc((void**) &g_data.img_grayscale, size_in_bytes));
   CHECK_CUDA(cudaMalloc((void**) &g_data.img_smoothed_grayscale, size_in_bytes));
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1145,8 +1160,12 @@ int main(int argc, char **argv)
     g_data.show = SHOW_GRAYSCALE | SHOW_SMOOTHED_GRAYSCALE | SHOW_EDGES;
 
     uchar *dst = NULL;
-    CHECK_CUDA(cudaMalloc((void**) &dst, g_data.img_w*g_data.img_h*sizeof(uchar)));
-    cuda_gaussian_filter(dst);
+#ifdef WITH_UVM
+    CHECK_CUDA(cudaMallocManaged((void**) &dst, g_data.img_w*g_data.img_h*sizeof(uchar)));
+#else
+	CHECK_CUDA(cudaMalloc((void**)&dst, g_data.img_w*g_data.img_h*sizeof(uchar)));
+#endif
+	cuda_gaussian_filter(dst);
     CHECK_CUDA(cudaFree(dst));
   }
 
