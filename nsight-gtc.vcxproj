@@ -51,7 +51,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="nsight-gtc2015.cu" />
+    <CudaCompile Include="nsight-gtc.cu" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A6E7B948-6169-4941-841A-52CF8291F470}</ProjectGuid>
@@ -147,7 +147,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 6.5.props" />
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 7.5.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Step-90|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -188,39 +188,51 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Step-90|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <LocalDebuggerCommandArguments>data\claw.ppm</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Step-91|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <LocalDebuggerCommandArguments>data\claw.ppm</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Step-80|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <LocalDebuggerCommandArguments>data\claw.ppm</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Step-70|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <LocalDebuggerCommandArguments>data\claw.ppm</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Step-60|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <LocalDebuggerCommandArguments>data\claw.ppm</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Step-50|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <LocalDebuggerCommandArguments>data\claw.ppm</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Step-40|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <LocalDebuggerCommandArguments>data\claw.ppm</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Step-30|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <LocalDebuggerCommandArguments>data\claw.ppm</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Step-20|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <LocalDebuggerCommandArguments>data\claw.ppm</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Step-1b|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <LocalDebuggerCommandArguments>data\claw.ppm</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Step-1a|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <LocalDebuggerCommandArguments>data\claw.ppm</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Step-00|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <LocalDebuggerCommandArguments>data\claw.ppm</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Step-90|x64'">
     <ClCompile>
@@ -241,10 +253,13 @@
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
-      <CodeGeneration>compute_35,sm_35;compute_37,sm_37</CodeGeneration>
+      <CodeGeneration>compute_35,sm_35;compute_37,sm_37;compute_52,sm_52</CodeGeneration>
       <GenerateLineInfo>true</GenerateLineInfo>
       <Defines>OPTIMIZATION_STEP=0x90</Defines>
     </CudaCompile>
+    <PostBuildEvent>
+      <Command>XCOPY "$(ProjectDir)data" "$(TargetDir)data\" /y /s /e</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Step-91|x64'">
     <ClCompile>
@@ -265,11 +280,14 @@
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
-      <CodeGeneration>compute_35,sm_35;compute_37,sm_37</CodeGeneration>
+      <CodeGeneration>compute_35,sm_35;compute_37,sm_37;compute_52,sm_52</CodeGeneration>
       <GenerateLineInfo>true</GenerateLineInfo>
       <Defines>OPTIMIZATION_STEP=0x91</Defines>
       <FastMath>true</FastMath>
     </CudaCompile>
+    <PostBuildEvent>
+      <Command>XCOPY "$(ProjectDir)data" "$(TargetDir)data\" /y /s /e</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Step-80|x64'">
     <ClCompile>
@@ -290,10 +308,13 @@
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
-      <CodeGeneration>compute_35,sm_35;compute_37,sm_37</CodeGeneration>
+      <CodeGeneration>compute_35,sm_35;compute_37,sm_37;compute_52,sm_52</CodeGeneration>
       <GenerateLineInfo>true</GenerateLineInfo>
       <Defines>OPTIMIZATION_STEP=0x80</Defines>
     </CudaCompile>
+    <PostBuildEvent>
+      <Command>XCOPY "$(ProjectDir)data" "$(TargetDir)data\" /y /s /e</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Step-70|x64'">
     <ClCompile>
@@ -314,10 +335,13 @@
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
-      <CodeGeneration>compute_35,sm_35;compute_37,sm_37</CodeGeneration>
+      <CodeGeneration>compute_35,sm_35;compute_37,sm_37;compute_52,sm_52</CodeGeneration>
       <GenerateLineInfo>true</GenerateLineInfo>
       <Defines>OPTIMIZATION_STEP=0x70</Defines>
     </CudaCompile>
+    <PostBuildEvent>
+      <Command>XCOPY "$(ProjectDir)data" "$(TargetDir)data\" /y /s /e</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Step-60|x64'">
     <ClCompile>
@@ -338,10 +362,13 @@
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
-      <CodeGeneration>compute_35,sm_35;compute_37,sm_37</CodeGeneration>
+      <CodeGeneration>compute_35,sm_35;compute_37,sm_37;compute_52,sm_52</CodeGeneration>
       <GenerateLineInfo>true</GenerateLineInfo>
       <Defines>OPTIMIZATION_STEP=0x60</Defines>
     </CudaCompile>
+    <PostBuildEvent>
+      <Command>XCOPY "$(ProjectDir)data" "$(TargetDir)data\" /y /s /e</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Step-50|x64'">
     <ClCompile>
@@ -362,10 +389,13 @@
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
-      <CodeGeneration>compute_35,sm_35;compute_37,sm_37</CodeGeneration>
+      <CodeGeneration>compute_35,sm_35;compute_37,sm_37;compute_52,sm_52</CodeGeneration>
       <GenerateLineInfo>true</GenerateLineInfo>
       <Defines>OPTIMIZATION_STEP=0x50</Defines>
     </CudaCompile>
+    <PostBuildEvent>
+      <Command>XCOPY "$(ProjectDir)data" "$(TargetDir)data\" /y /s /e</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Step-40|x64'">
     <ClCompile>
@@ -386,10 +416,13 @@
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
-      <CodeGeneration>compute_35,sm_35;compute_37,sm_37</CodeGeneration>
+      <CodeGeneration>compute_35,sm_35;compute_37,sm_37;compute_52,sm_52</CodeGeneration>
       <GenerateLineInfo>true</GenerateLineInfo>
       <Defines>OPTIMIZATION_STEP=0x40</Defines>
     </CudaCompile>
+    <PostBuildEvent>
+      <Command>XCOPY "$(ProjectDir)data" "$(TargetDir)data\" /y /s /e</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Step-30|x64'">
     <ClCompile>
@@ -410,10 +443,13 @@
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
-      <CodeGeneration>compute_35,sm_35;compute_37,sm_37</CodeGeneration>
+      <CodeGeneration>compute_35,sm_35;compute_37,sm_37;compute_52,sm_52</CodeGeneration>
       <GenerateLineInfo>true</GenerateLineInfo>
       <Defines>OPTIMIZATION_STEP=0x30</Defines>
     </CudaCompile>
+    <PostBuildEvent>
+      <Command>XCOPY "$(ProjectDir)data" "$(TargetDir)data\" /y /s /e</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Step-20|x64'">
     <ClCompile>
@@ -434,10 +470,13 @@
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
-      <CodeGeneration>compute_35,sm_35;compute_37,sm_37</CodeGeneration>
+      <CodeGeneration>compute_35,sm_35;compute_37,sm_37;compute_52,sm_52</CodeGeneration>
       <GenerateLineInfo>true</GenerateLineInfo>
       <Defines>OPTIMIZATION_STEP=0x20</Defines>
     </CudaCompile>
+    <PostBuildEvent>
+      <Command>XCOPY "$(ProjectDir)data" "$(TargetDir)data\" /y /s /e</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Step-1b|x64'">
     <ClCompile>
@@ -458,10 +497,13 @@
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
-      <CodeGeneration>compute_35,sm_35;compute_37,sm_37</CodeGeneration>
+      <CodeGeneration>compute_35,sm_35;compute_37,sm_37;compute_52,sm_52</CodeGeneration>
       <GenerateLineInfo>true</GenerateLineInfo>
       <Defines>OPTIMIZATION_STEP=0x1b</Defines>
     </CudaCompile>
+    <PostBuildEvent>
+      <Command>XCOPY "$(ProjectDir)data" "$(TargetDir)data\" /y /s /e</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Step-1a|x64'">
     <ClCompile>
@@ -482,10 +524,13 @@
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
-      <CodeGeneration>compute_35,sm_35;compute_37,sm_37</CodeGeneration>
+      <CodeGeneration>compute_35,sm_35;compute_37,sm_37;compute_52,sm_52</CodeGeneration>
       <GenerateLineInfo>true</GenerateLineInfo>
       <Defines>OPTIMIZATION_STEP=0x1a</Defines>
     </CudaCompile>
+    <PostBuildEvent>
+      <Command>XCOPY "$(ProjectDir)data" "$(TargetDir)data\" /y /s /e</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Step-00|x64'">
     <ClCompile>
@@ -506,13 +551,16 @@
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
-      <CodeGeneration>compute_35,sm_35;compute_37,sm_37</CodeGeneration>
+      <CodeGeneration>compute_35,sm_35;compute_37,sm_37;compute_52,sm_52</CodeGeneration>
       <GenerateLineInfo>true</GenerateLineInfo>
       <Defines>OPTIMIZATION_STEP=0x00</Defines>
     </CudaCompile>
+    <PostBuildEvent>
+      <Command>XCOPY "$(ProjectDir)data" "$(TargetDir)data\" /y /s /e</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 6.5.targets" />
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 7.5.targets" />
   </ImportGroup>
 </Project>

@@ -15,8 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="nsight-gtc2015.cu">
-      <Filter>Source Files</Filter>
-    </CudaCompile>
+    <CudaCompile Include="nsight-gtc.cu" />
   </ItemGroup>
 </Project>
