@@ -2,8 +2,6 @@
 #include <cstdlib>
 #include <cstring>
 
-#define WITH_UVM
-
 #ifdef WITH_OPENGL
 #include <GL/glew.h>
 #if defined(__APPLE__) || defined(MACOSX)
@@ -18,6 +16,9 @@
 #ifdef WITH_OPENGL
 #include <cuda_gl_interop.h>
 #endif
+
+// enable use of unified virtual memory instead of explicit memcpys
+// #define WITH_UVM
 
 //1 Coalescing
 //2 Occupancy
@@ -100,13 +101,13 @@ struct GlobalData
   uchar  *img_smoothed_grayscale;
 
 #ifdef WITH_OPENGL
-  cudaGraphicsResource *img_cuda_pbo; 
+  cudaGraphicsResource *img_cuda_pbo;
 
-  GLuint img_pbo; 
+  GLuint img_pbo;
   GLuint img_tex;
 #endif
 
-  // What does the OpenGL renderer shows? 
+  // What does the OpenGL renderer shows?
   int show;
 };
 
@@ -129,17 +130,17 @@ static __device__ __forceinline__ int in_img(int x, int y, int w, int h)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 static __constant__ int gaussian_filter[7][7] = {
-  1,   2,   3,    4,    3,    2,    1,
-  2,   4,   6,    8,    6,    4,    2,
-  3,   6,   9,   12,    9,    6,    3,
-  4,   8,  12,   16,   12,    8,    4,
-  3,   6,   9,   12,    9,    6,    3,
-  2,   4,   6,    8,    6,    4,    2,
-  1,   2,   3,    4,    3,    2,    1
+   1,   6,  15,  20,  15,   6,   1,
+   6,  36,  90, 120,  90,  36,   6,
+  15,  90, 225, 300, 225,  90,  15,
+  20, 120, 300, 400, 300, 120,  20,
+  15,  90, 225, 300, 225,  90,  15,
+   6,  36,  90, 120,  90,  36,   6,
+   1,   6,  15,  20,  15,   6,   1,
 };
 
 static __constant__ float gaussian_filter_fp32[7] = {
-  1.0f, 2.0f, 3.0f, 4.0f, 3.0f, 2.0f, 1.0f
+  1.0f, 6.0f, 15.0f, 20.0f, 15.0f, 6.0f, 1.0f
 };
 
 static __constant__ int sobel_filter_x[3][3] = {
@@ -251,15 +252,15 @@ __global__ void gaussian_filter_7x7_v0(int w, int h, const uchar *src, uchar *ds
       p += gaussian_filter[j][i] * n[j][i];
 
   // Store the result.
-  dst[y*w + x] = (uchar) (p / 256);
+  dst[y*w + x] = (uchar) (p / 4096);
 }
 
 // ====================================================================================================================
 
 #if defined(__CUDA_ARCH__) && __CUDA_ARCH__ >= 300
-__global__ __launch_bounds__(128, 10) 
+__global__ __launch_bounds__(128, 10)
 #elif defined(__CUDA_ARCH__) && __CUDA_ARCH__ >= 200
-__global__ __launch_bounds__(128, 8) 
+__global__ __launch_bounds__(128, 8)
 #else
 __global__
 #endif
@@ -286,7 +287,7 @@ void gaussian_filter_7x7_v1(int w, int h, const uchar *src, uchar *dst)
       p += gaussian_filter[j][i] * n[j][i];
 
   // Store the result.
-  dst[y*w + x] = (uchar) (p / 256);
+  dst[y*w + x] = (uchar) (p / 4096);
 }
 
 // ====================================================================================================================
@@ -323,7 +324,7 @@ __global__ void gaussian_filter_7x7_v2(int w, int h, const uchar *src, uchar *ds
 
   // Store the result.
   if( in_img(x, y, w, h) )
-    dst[y*w + x] = (uchar) (p / 256);
+    dst[y*w + x] = (uchar) (p / 4096);
 }
 
 // ====================================================================================================================
@@ -360,7 +361,7 @@ __global__ void gaussian_filter_7x7_v3(int w, int h, const uchar *__restrict src
 
   // Store the result.
   if( in_img(x, y, w, h) )
-    dst[y*w + x] = (uchar) (p / 256);
+    dst[y*w + x] = (uchar) (p / 4096);
 }
 
 // ====================================================================================================================
@@ -376,7 +377,7 @@ __global__ void gaussian_filter_7x7_v3_bis(int w, int h, const uchar *__restrict
 
   // Pixel to load.
   const int load_x = blockIdx.x*blockDim.x + 2*threadIdx.x - 4; // -4 for alignment (it should be -3).
-  
+
   // Each thread loads 8 pixels.
   uchar2 p0 = in_img(load_x, y- 3, w, h) ? *reinterpret_cast<const uchar2*>(&src[(y- 3)*w + load_x]) : make_uchar2(0, 0);
   uchar2 p1 = in_img(load_x, y+ 5, w, h) ? *reinterpret_cast<const uchar2*>(&src[(y+ 5)*w + load_x]) : make_uchar2(0, 0);
@@ -413,9 +414,9 @@ __global__ void gaussian_filter_7x7_v3_bis(int w, int h, const uchar *__restrict
 
   // Write the pixels.
   if( in_img(x, write_y, w, h) )
-    dst[write_y*w + x] = (uchar) ((int) p[0] >> 8);
+    dst[write_y*w + x] = (uchar) ((int) p[0] >> 12);
   if( in_img(x, write_y+1, w, h) )
-    dst[(write_y+1)*w + x] = (uchar) ((int) p[1] >> 8);
+    dst[(write_y+1)*w + x] = (uchar) ((int) p[1] >> 12);
 }
 
 // ====================================================================================================================
@@ -432,7 +433,7 @@ __global__ void gaussian_filter_7x7_v4(int w, int h, const uchar *__restrict src
   // Each thread loads 2 pixels.
   int p0 = in_img(x-3, y-3, w, h) ? src[(y-3)*w + x-3] : 0;
   int p1 = in_img(x-3, y+5, w, h) ? src[(y+5)*w + x-3] : 0;
-  
+
   // Load extra pixels per row.
   int p2 = in_img(x+29, y-3, w, h) && threadIdx.x < 6 ? src[(y-3)*w + x+29] : 0;
   int p3 = in_img(x+29, y+5, w, h) && threadIdx.x < 6 ? src[(y+5)*w + x+29] : 0;
@@ -448,7 +449,7 @@ __global__ void gaussian_filter_7x7_v4(int w, int h, const uchar *__restrict src
     smem_img[threadIdx.y+8][threadIdx.x+32] = p3;
   }
   __syncthreads();
-  
+
   // Compute the horizontal convolution.
   int n0[7], n1[7];
   for( int i = 0 ; i < 7 ; ++i )
@@ -481,7 +482,7 @@ __global__ void gaussian_filter_7x7_v4(int w, int h, const uchar *__restrict src
 
   // Write the pixels.
   if( in_img(x, y, w, h) )
-    dst[y*w + x] = (uchar) (q >> 8);
+    dst[y*w + x] = (uchar) (q >> 12);
 }
 
 // ====================================================================================================================
@@ -497,7 +498,7 @@ __global__ void gaussian_filter_7x7_v5(int w, int h, const uchar *__restrict src
 
   // Pixel to load.
   const int load_x = blockIdx.x*blockDim.x + 2*threadIdx.x - 4; // -4 for alignment (it should be -3).
-  
+
   // Each thread loads 8 pixels.
   uchar2 p0 = in_img(load_x, y- 3, w, h) ? *reinterpret_cast<const uchar2*>(&src[(y- 3)*w + load_x]) : make_uchar2(0, 0);
   uchar2 p1 = in_img(load_x, y+ 5, w, h) ? *reinterpret_cast<const uchar2*>(&src[(y+ 5)*w + load_x]) : make_uchar2(0, 0);
@@ -513,7 +514,7 @@ __global__ void gaussian_filter_7x7_v5(int w, int h, const uchar *__restrict src
     reinterpret_cast<int2*>(smem_img[threadIdx.y+24])[threadIdx.x] = make_int2(p3.x, p3.y);
   }
   __syncthreads();
-  
+
   // Compute the horizontal convolution.
   int n0[7], n1[7], n2[7], n3[7];
   for( int i = 0 ; i < 7 ; ++i )
@@ -558,9 +559,9 @@ __global__ void gaussian_filter_7x7_v5(int w, int h, const uchar *__restrict src
 
   // Write the pixels.
   if( in_img(x, write_y, w, h) )
-    dst[write_y*w + x] = (uchar) (q0 >> 8);
+    dst[write_y*w + x] = (uchar) (q0 >> 12);
   if( in_img(x, write_y+1, w, h) )
-    dst[(write_y+1)*w + x] = (uchar) (q1 >> 8);
+    dst[(write_y+1)*w + x] = (uchar) (q1 >> 12);
 }
 
 // ====================================================================================================================
@@ -576,7 +577,7 @@ __global__ void gaussian_filter_7x7_v6(int w, int h, const uchar *__restrict src
 
   // Pixel to load.
   const int load_x = blockIdx.x*blockDim.x + 2*threadIdx.x - 4; // -4 for alignment (it should be -3).
-  
+
   // Each thread loads 8 pixels.
   uchar2 p0 = in_img(load_x, y- 3, w, h) ? *reinterpret_cast<const uchar2*>(&src[(y- 3)*w + load_x]) : make_uchar2(0, 0);
   uchar2 p1 = in_img(load_x, y+ 5, w, h) ? *reinterpret_cast<const uchar2*>(&src[(y+ 5)*w + load_x]) : make_uchar2(0, 0);
@@ -592,7 +593,7 @@ __global__ void gaussian_filter_7x7_v6(int w, int h, const uchar *__restrict src
     reinterpret_cast<float2*>(smem_img[threadIdx.y+24])[threadIdx.x] = make_float2((float) p3.x, (float) p3.y);
   }
   __syncthreads();
-  
+
   // Compute the horizontal convolution.
   float n0[7], n1[7], n2[7], n3[7];
   for( int i = 0 ; i < 7 ; ++i )
@@ -637,9 +638,9 @@ __global__ void gaussian_filter_7x7_v6(int w, int h, const uchar *__restrict src
 
   // Write the pixels.
   if( in_img(x, write_y, w, h) )
-    dst[write_y*w + x] = (uchar) ((int) q0 >> 8);
+    dst[write_y*w + x] = (uchar) ((int) q0 >> 12);
   if( in_img(x, write_y+1, w, h) )
-    dst[(write_y+1)*w + x] = (uchar) ((int) q1 >> 8);
+    dst[(write_y+1)*w + x] = (uchar) ((int) q1 >> 12);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -797,7 +798,7 @@ static void cuda_gaussian_filter(uchar *dst)
 
   // Convert from RGBA to Grayscale.
   dim3 block_dim_rgba(32, 8);
-  
+
   CHECK_CUDA(cudaEventRecord(rtogStart));
 #if OPTIMIZATION_STEP == 0x91
   dim3 grid_dim_rgba(round_up(g_data.img_w, block_dim_rgba.x), round_up(g_data.img_h, block_dim_rgba.y)/2);
@@ -827,12 +828,11 @@ static void cuda_gaussian_filter(uchar *dst)
   if( g_data.show & SHOW_SMOOTHED_GRAYSCALE )
   {
     smoothed_grayscale = (g_data.show & SHOW_EDGES) ? g_data.img_smoothed_grayscale : dst;
-    
+
     CHECK_CUDA(cudaEventRecord(gaussStart));
 
 #if   OPTIMIZATION_STEP == 0x00
     gaussian_filter_7x7_v0<<<grid_dim, block_dim>>>(g_data.img_w, g_data.img_h, grayscale, smoothed_grayscale);
-	gaussian_filter_7x7_v0<<<grid_dim, block_dim>>>(g_data.img_w, g_data.img_h, grayscale, smoothed_grayscale);
 #elif OPTIMIZATION_STEP == 0x1a
     gaussian_filter_7x7_v0<<<grid_dim, block_dim>>>(g_data.img_w, g_data.img_h, grayscale, smoothed_grayscale);
 #elif OPTIMIZATION_STEP == 0x1b
@@ -1039,7 +1039,7 @@ void load_image(const char *filename)
   // Read header.
   char header[HEADER_SIZE];
   CHECK(fgets(header, HEADER_SIZE, fp));
-  
+
   // Number of channels. Must be 3.
   CHECK(!strncmp(header, "P6", 2));
 
@@ -1057,7 +1057,7 @@ void load_image(const char *filename)
 
   // Read the pixels.
   int size_in_bytes = 3*width*height*sizeof(uchar);
-  uchar *img_rgb = (uchar*) malloc(size_in_bytes);  
+  uchar *img_rgb = (uchar*) malloc(size_in_bytes);
   CHECK(img_rgb);
   CHECK(fread(img_rgb, sizeof(uchar), 3*width*height, fp) == 3*width*height);
 
